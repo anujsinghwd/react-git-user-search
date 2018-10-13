@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import './App.css';
-import people from './people';
-import Card from './Card';
-import CardStack from './CardStack';
+import Card from './Components/Card';
+import CardStack from './Components/CardStack';
+import SearchBar from './Components/SearchBar';
+import TeamMemberCard from './Components/TeamMemberCard';
 
 const API = `https://api.github.com/search/users`;
 
@@ -16,14 +17,14 @@ class App extends Component {
     this.state = {
         users: [],
         username: 'anujsingh',
-        sets: []
+        sets: [],
+        active: false
     };
   }
 
   componentWillMount(){
       this.getProfile(this.state.username);
   }
-
 
   getProfile(username){
     var hihi = [];
@@ -50,21 +51,26 @@ class App extends Component {
        .catch((error) => console.log('There was a problem in fetching data'));
     }
 
+  handleCardClick(event){
+    this.setState({active: event});
+  }
+
   render() {
     var main_stack;
     const users = this.state.sets;
     if(users.length > 0) {
       main_stack = <CardStack
         height={600}
-        width={450}
+        width={500}
         background="#f8f8f8"
         hoverOffset={25}>
 
         {this.state.sets.map((person, i) =>
           <Card
+            cardClicked={this.handleCardClick.bind(this)}
             key={i}
             background={person.background}>
-            <TeamMemberCard {...person} />
+            <TeamMemberCard cardState={this.state.active} {...person} />
           </Card>
         )}
       </CardStack>;
@@ -73,29 +79,13 @@ class App extends Component {
     }
     return (
       <div>
+        <SearchBar searchProfile={this.getProfile.bind(this)}/>
         { main_stack }
       </div>
     );
   }
 }
 
-const Loader = () => (
-  <div id="escapingBallG">
-  	<div id="escapingBall_1" className="escapingBallG"></div>
-  </div>
-);
-
-const ProfilePicture = ({ imgSrc, borderColor }) => (
-	<img
-		style={{
-			width: '60px',
-			height: '60px',
-			borderRadius: '100%',
-			border: `3px solid ${borderColor}`,
-		}}
-		src={imgSrc}
-	/>
-);
 
 const DetailsRow = ({ icon, title, summary }) => {
 	const renderSummary = () => {
@@ -123,35 +113,6 @@ const DetailsRow = ({ icon, title, summary }) => {
 	);
 };
 
-const TeamMemberCard = (props) => (
-	<div style={{ position: 'absolute', top: 0 }} onClick={props.onClick}>
-		<header style={styles.cardHeader} className='card-header-details'>
-			<ProfilePicture imgSrc={props.imgSrc} borderColor={props.imgBorderColor} />
-			<div>
-				<h1 style={styles.headerName}>{props.name}</h1>
-				<h3 style={styles.headerTitle} className='icon ion-ios-arrow-down'>{props.title}</h3>
-			</div>
-		</header>
-
-		<div style={{color: '#fff'}}>
-			<DetailsRow
-				icon='ion-ios-telephone-outline'
-				title={props.mobileNo}
-			/>
-
-			<DetailsRow
-				icon='ion-ios-location-outline'
-				title={props.location}
-			/>
-
-			<DetailsRow
-				icon='icon ion-ios-paper-outline'
-				title='Main Role'
-				summary={props.role}
-			/>
-		</div>
-  </div>
-);
 
 const styles = {
 	cardHeader: {

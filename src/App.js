@@ -6,54 +6,84 @@ import CardStack from './CardStack';
 
 const API = `https://api.github.com/search/users`;
 
-class App extends Component {
+const background = ['#2980B9', '#27AE60', '#9B27AE', '#e67e22', '#2980B9', '#27AE60', '#2980B9'];
+const imgBorder = ['#015389', '#086C32', '#6A067A', '#9D4F09', '#015389', '#086C32', '#015389'];
 
+
+class App extends Component {
   constructor(props){
     super(props);
     this.state = {
         users: [],
-        username: 'anujsingh'
+        username: 'anujsingh',
+        sets: []
     };
   }
 
-  componentDidMount(){
-    this.getProfile(this.state.username);
+  componentWillMount(){
+      this.getProfile(this.state.username);
   }
 
 
   getProfile(username){
+    var hihi = [];
     let finalURL = `${API}?q=${username}`;
-    fetch(finalURL)
-      .then((res) => res.json())
-      .then((data) => {
-        this.setState({users: data.items });
-        console.log(this.state.users.splice(0, 7));
-      })
-     .catch((error) => console.log('There was a problem in fetching data'));
+      fetch(finalURL)
+        .then((res) => res.json())
+        .then((data) => {
+          var user_data = data.items.splice(0, 7);
+          user_data.forEach(function(item, i){
+              var render_users = {
+                name: item.login,
+                background: background[i],
+                imgSrc: item.avatar_url,
+                imgBorderColor: imgBorder[i],
+                title: item.type,
+                mobileNo: null,
+                location: null,
+                role: 'Vella'
+              };
+              hihi.push(render_users);
+          })
+          this.setState({sets: hihi});
+        })
+       .catch((error) => console.log('There was a problem in fetching data'));
     }
 
   render() {
-    return (
-      <div>
-      <CardStack
-        height={500}
-        width={400}
+    var main_stack;
+    const users = this.state.sets;
+    if(users.length > 0) {
+      main_stack = <CardStack
+        height={600}
+        width={450}
         background="#f8f8f8"
         hoverOffset={25}>
-  
-        {people.map((person, i) =>
+
+        {this.state.sets.map((person, i) =>
           <Card
             key={i}
             background={person.background}>
             <TeamMemberCard {...person} />
           </Card>
         )}
-  
-      </CardStack>
-    </div>
+      </CardStack>;
+    }else{
+      main_stack = <img src="https://vignette.wikia.nocookie.net/combatarms/images/5/52/Loading_Screen_Human_Running_Animation.gif/revision/latest?cb=20140213033829" width="100"/>
+    }
+    return (
+      <div>
+        { main_stack }
+      </div>
     );
   }
 }
+
+const Loader = () => (
+  <div id="escapingBallG">
+  	<div id="escapingBall_1" className="escapingBallG"></div>
+  </div>
+);
 
 const ProfilePicture = ({ imgSrc, borderColor }) => (
 	<img
